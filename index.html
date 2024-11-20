@@ -72,8 +72,8 @@
             if (lastTirageDate !== today) {
                 // Vérifie si un gagnant a déjà été attribué pour ce genre
                 if (!gagnantAttribue[genre]) {
-                    // Effectue un tirage aléatoire avec 4 % de chance de gagner
-                    isGagnant = Math.random() < 0.04;
+                    // Effectue un tirage aléatoire avec 10 % de chance de gagner
+                    isGagnant = Math.random() < 0.10;
 
                     // Si le tirage est gagnant, on l'enregistre
                     if (isGagnant) {
