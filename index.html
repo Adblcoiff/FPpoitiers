@@ -63,32 +63,32 @@
             // Clés pour localStorage spécifiques à chaque genre
             const lastTirageDateKey = `lastTirageDate_${genre}`;
             const lastTirageResultKey = `lastTirageResult_${genre}`;
-            const gagnantAttribueKey = `gagnantAttribue_${today}`;
+            const gagnantAttribueKey = `gagnantAttribue_${genre}_${today}`;
 
             // Récupération des données stockées dans localStorage
             const lastTirageDate = localStorage.getItem(lastTirageDateKey);
             const lastTirageResult = localStorage.getItem(lastTirageResultKey);
-            const gagnantAttribue = JSON.parse(localStorage.getItem(gagnantAttribueKey)) || { femme: false, homme: false };
+            const gagnantAttribue = JSON.parse(localStorage.getItem(gagnantAttribueKey)) || false;
 
             console.log('Dernière date de tirage:', lastTirageDate);
             console.log('Résultat précédent:', lastTirageResult);
-            console.log('Gagnants attribués:', gagnantAttribue);
+            console.log('Gagnant attribué aujourd\'hui pour ce genre:', gagnantAttribue);
 
             let isGagnant;
 
-            // Si aucun tirage n'a eu lieu aujourd'hui, on effectue un tirage
+            // Si aucun tirage n'a eu lieu aujourd'hui pour ce genre, on effectue un tirage
             if (lastTirageDate !== today) {
                 console.log('Aucun tirage effectué aujourd\'hui. Nouveau tirage...');
-                // Vérifie si un gagnant a déjà été attribué pour ce genre
-                if (!gagnantAttribue[genre]) {
+
+                // Si ce genre n'a pas encore eu de gagnant attribué aujourd'hui
+                if (!gagnantAttribue) {
                     // Effectue un tirage aléatoire avec 50 % de chance de gagner
                     isGagnant = Math.random() < 0.50; // 50 % de chance de gagner
                     console.log('Résultat du tirage:', isGagnant ? 'Gagnant' : 'Perdant');
 
                     // Si le tirage est gagnant, on l'enregistre
                     if (isGagnant) {
-                        gagnantAttribue[genre] = true; // Marque ce genre comme gagnant pour la journée
-                        localStorage.setItem(gagnantAttribueKey, JSON.stringify(gagnantAttribue)); // Sauvegarde l'état des gagnants
+                        localStorage.setItem(gagnantAttribueKey, JSON.stringify(true)); // Marque ce genre comme gagnant pour la journée
                     }
                 } else {
                     console.log(`Un gagnant a déjà été attribué pour ${genre} aujourd'hui.`);
