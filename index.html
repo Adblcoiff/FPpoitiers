@@ -52,11 +52,13 @@
 
     <script>
         function choisirGenre(genre) {
+            console.log(`Choix du genre: ${genre}`);  // Pour déboguer quel genre a été choisi
             lancerTirage(genre);
         }
 
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
+            console.log('Date actuelle:', today); // Pour vérifier si la date est correcte
 
             // Clés pour localStorage spécifiques à chaque genre
             const lastTirageDateKey = `lastTirageDate_${genre}`;
@@ -68,14 +70,20 @@
             const lastTirageResult = localStorage.getItem(lastTirageResultKey);
             const gagnantAttribue = JSON.parse(localStorage.getItem(gagnantAttribueKey)) || { femme: false, homme: false };
 
+            console.log('Dernière date de tirage:', lastTirageDate);
+            console.log('Résultat précédent:', lastTirageResult);
+            console.log('Gagnants attribués:', gagnantAttribue);
+
             let isGagnant;
 
             // Si aucun tirage n'a eu lieu aujourd'hui, on effectue un tirage
             if (lastTirageDate !== today) {
+                console.log('Aucun tirage effectué aujourd\'hui. Nouveau tirage...');
                 // Vérifie si un gagnant a déjà été attribué pour ce genre
                 if (!gagnantAttribue[genre]) {
                     // Effectue un tirage aléatoire avec 50 % de chance de gagner
                     isGagnant = Math.random() < 0.50; // 50 % de chance de gagner
+                    console.log('Résultat du tirage:', isGagnant ? 'Gagnant' : 'Perdant');
 
                     // Si le tirage est gagnant, on l'enregistre
                     if (isGagnant) {
@@ -83,6 +91,7 @@
                         localStorage.setItem(gagnantAttribueKey, JSON.stringify(gagnantAttribue)); // Sauvegarde l'état des gagnants
                     }
                 } else {
+                    console.log(`Un gagnant a déjà été attribué pour ${genre} aujourd'hui.`);
                     // Si un gagnant a déjà été attribué pour ce genre, on ne refait pas le tirage
                     isGagnant = false;
                 }
@@ -92,6 +101,7 @@
                 localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
             } else {
                 // Si le tirage a déjà eu lieu aujourd'hui, on utilise le résultat enregistré
+                console.log('Tirage déjà effectué aujourd\'hui.');
                 isGagnant = lastTirageResult === "gagner";
             }
 
