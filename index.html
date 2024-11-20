@@ -64,28 +64,28 @@
         const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
 
         // Clés pour stocker les données spécifiques
-        const lastTirageDateKey = `lastTirageDate_${genre}`;
-        const lastTirageResultKey = `lastTirageResult_${genre}`;
         const gagnantAttribueKeyFemme = "gagnantAttribue_femme";
         const gagnantAttribueKeyHomme = "gagnantAttribue_homme";
+        const lastTirageDateKey = `lastTirageDate_${genre}`;
+        const lastTirageResultKey = `lastTirageResult_${genre}`;
 
         // Charger les états actuels
         const lastTirageDate = localStorage.getItem(lastTirageDateKey);
-        const gagnantFemme = localStorage.getItem(gagnantAttribueKeyFemme) === "true";
-        const gagnantHomme = localStorage.getItem(gagnantAttribueKeyHomme) === "true";
+        const gagnantFemmeAttribue = localStorage.getItem(gagnantAttribueKeyFemme) === "true";
+        const gagnantHommeAttribue = localStorage.getItem(gagnantAttribueKeyHomme) === "true";
 
         let isGagnant;
 
-        // Si le tirage d'aujourd'hui n'a pas encore été fait
+        // Tirage d'un gagnant uniquement si la date ne correspond pas à aujourd'hui
         if (lastTirageDate !== today) {
-            if (genre === "femme" && !gagnantFemme) {
-                isGagnant = true; // Attribuer un gagnant au genre femme
+            if (genre === "femme" && !gagnantFemmeAttribue) {
+                isGagnant = true; // Gagnant pour les femmes
                 localStorage.setItem(gagnantAttribueKeyFemme, "true");
-            } else if (genre === "homme" && !gagnantHomme) {
-                isGagnant = true; // Attribuer un gagnant au genre homme
+            } else if (genre === "homme" && !gagnantHommeAttribue) {
+                isGagnant = true; // Gagnant pour les hommes
                 localStorage.setItem(gagnantAttribueKeyHomme, "true");
             } else {
-                isGagnant = false; // Aucun gagnant si les deux genres ont déjà un gagnant
+                isGagnant = false; // Aucun gagnant s'il y a déjà un gagnant attribué
             }
 
             // Enregistrer la date et le résultat
@@ -97,16 +97,14 @@
             isGagnant = lastTirageResult === "gagner";
         }
 
-        // Debugging : Vérifier les états actuels
-        console.log("Date du tirage (Femme) :", localStorage.getItem("lastTirageDate_femme"));
-        console.log("Résultat (Femme) :", localStorage.getItem("lastTirageResult_femme"));
-        console.log("Date du tirage (Homme) :", localStorage.getItem("lastTirageDate_homme"));
-        console.log("Résultat (Homme) :", localStorage.getItem("lastTirageResult_homme"));
-        console.log("Gagnant attribué (Femme) :", localStorage.getItem("gagnantAttribue_femme"));
-        console.log("Gagnant attribué (Homme) :", localStorage.getItem("gagnantAttribue_homme"));
+        // Debugging : Vérifier les valeurs actuelles
+        console.log("Date actuelle :", today);
+        console.log("Gagnant attribué (Femme) :", localStorage.getItem(gagnantAttribueKeyFemme));
+        console.log("Gagnant attribué (Homme) :", localStorage.getItem(gagnantAttribueKeyHomme));
+        console.log("Tirage pour genre", genre, ":", isGagnant ? "Gagnant" : "Perdant");
 
         // Lancer la vidéo selon le résultat
-        const videoFile = isGagnant ? "gagner_1.mov" : "perdu.mp4";
+        const videoFile = isGagnant ? "gagner.mp4" : "perdu.mp4";
         lancerVideo(videoFile);
     }
 
