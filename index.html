@@ -130,6 +130,20 @@
             document.body.innerHTML = "";
             document.body.appendChild(video);
         }
+
+        // Fonction pour réinitialiser les résultats de tirage pour les tests
+        function resetTirages() {
+            localStorage.removeItem('lastTirageDate_femme');
+            localStorage.removeItem('lastTirageResult_femme');
+            localStorage.removeItem('gagnantAttribue_femme');
+            localStorage.removeItem('lastTirageDate_homme');
+            localStorage.removeItem('lastTirageResult_homme');
+            localStorage.removeItem('gagnantAttribue_homme');
+            console.log('Les tirages ont été réinitialisés.');
+        }
+
+        // Vous pouvez appeler resetTirages() pour réinitialiser les données du localStorage.
+        // Exemple : resetTirages();
     </script>
 
 </body>
