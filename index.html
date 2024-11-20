@@ -20,25 +20,34 @@
             color: #f3e9e2;
             overflow: hidden;
         }
-        
-        .genre-choice {
-            text-align: center;
-        }
 
-        .genre-choice h1 {
-            font-size: 5em;
-            margin: 0.2em 0;
-            color: #f3e9e2;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .genre-choice h1:hover {
-            color: #f7a7b5;
+        .genre-choice {
+            display: flex;
+            gap: 2rem; /* Espace entre les images */
         }
 
         .click-area {
             cursor: pointer;
+            width: 150px; /* Largeur des images */
+            height: 150px; /* Hauteur des images */
+            background-size: cover;
+            background-position: center;
+            border: none;
+            outline: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .click-area:hover {
+            transform: scale(1.1); /* Effet zoom */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre */
+        }
+
+        .click-area.femme {
+            background-image: url('6.png'); /* Image pour le choix femme */
+        }
+
+        .click-area.homme {
+            background-image: url('7.png'); /* Image pour le choix homme */
         }
     </style>
 </head>
@@ -46,27 +55,26 @@
 
     <!-- Contenu central pour le choix du genre -->
     <div class="genre-choice">
-        <h1 class="click-area" onclick="choisirGenre('femme')">FEMME</h1>
-        <h1 class="click-area" onclick="choisirGenre('homme')">HOMME</h1>
+        <button class="click-area femme" onclick="lancerTirage('femme')" aria-label="Choisir Femme"></button>
+        <button class="click-area homme" onclick="lancerTirage('homme')" aria-label="Choisir Homme"></button>
     </div>
 
     <script>
-        function choisirGenre(genre) {
-            lancerTirage(genre);
-        }
-
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
-            const lastTirageDate = localStorage.getItem("lastTirageDate");
-            const lastTirageResult = localStorage.getItem("lastTirageResult");
+            const lastTirageDateKey = `lastTirageDate_${genre}`;
+            const lastTirageResultKey = `lastTirageResult_${genre}`;
+
+            const lastTirageDate = localStorage.getItem(lastTirageDateKey);
+            const lastTirageResult = localStorage.getItem(lastTirageResultKey);
 
             let isGagnant;
 
-            // Si le tirage d'aujourd'hui n'a pas encore eu lieu, on en crée un
+            // Si le tirage d'aujourd'hui pour ce genre n'a pas encore eu lieu, on en crée un
             if (lastTirageDate !== today) {
                 isGagnant = Math.random() < 0.02; // 2 % de chance de gagner
-                localStorage.setItem("lastTirageDate", today);
-                localStorage.setItem("lastTirageResult", isGagnant ? "gagner" : "perdu");
+                localStorage.setItem(lastTirageDateKey, today);
+                localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
             } else {
                 // Sinon, on utilise le résultat enregistré pour aujourd'hui
                 isGagnant = lastTirageResult === "gagner";
