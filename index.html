@@ -86,8 +86,8 @@
                 }
 
                 // Enregistre le tirage (le même pour toute la journée)
-                localStorage.setItem(lastTirageDateKey, today);
-                localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
+                localStorage.setItem("lastTirageDate", today);
+                localStorage.setItem("lastTirageResult", isGagnant ? "gagner" : "perdu");
             } else {
                 // Si le tirage a déjà été effectué aujourd'hui, utilise le résultat enregistré
                 isGagnant = lastTirageResult === "gagner";
