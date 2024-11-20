@@ -22,38 +22,43 @@
         }
 
         .genre-choice {
-            display: flex;
-            gap: 2rem; /* Espace entre les images */
+            position: relative;
+            width: 200px; /* Largeur du conteneur */
+            height: 200px; /* Hauteur du conteneur */
         }
 
         .click-area {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             cursor: pointer;
-            width: 150px; /* Largeur des images */
-            height: 150px; /* Hauteur des images */
             background-size: cover;
             background-position: center;
             border: none;
             outline: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .click-area:hover {
-            transform: scale(1.1); /* Effet zoom */
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre */
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .click-area.femme {
             background-image: url('6.png'); /* Image pour le choix femme */
+            z-index: 2; /* Au-dessus de l'autre bouton */
         }
 
         .click-area.homme {
             background-image: url('7.png'); /* Image pour le choix homme */
+            z-index: 1; /* Derrière l'autre bouton */
+        }
+
+        /* Effet visuel au survol */
+        .click-area:hover {
+            transform: scale(1.1); /* Zoom léger */
+            opacity: 0.8; /* Transparence pour l’effet */
         }
     </style>
 </head>
 <body>
 
-    <!-- Contenu central pour le choix du genre -->
+    <!-- Conteneur des boutons superposés -->
     <div class="genre-choice">
         <button class="click-area femme" onclick="lancerTirage('femme')" aria-label="Choisir Femme"></button>
         <button class="click-area homme" onclick="lancerTirage('homme')" aria-label="Choisir Homme"></button>
@@ -85,27 +90,4 @@
             lancerVideo(videoFile);
         }
 
-        function lancerVideo(videoFile) {
-            // Création de l'élément vidéo plein écran sans contrôle
-            const video = document.createElement("video");
-            video.src = videoFile;
-            video.autoplay = true;
-            video.muted = true;
-            video.loop = false;
-            video.playsInline = true;
-            video.style.width = "100%";
-            video.style.height = "100vh";
-            video.style.objectFit = "cover";
-            video.style.pointerEvents = "none"; // Empêche toute interaction avec la vidéo
-            video.setAttribute("playsinline", "");
-            video.setAttribute("autoplay", "true");
-            video.setAttribute("muted", "true");
-
-            // Remplacement du contenu de la page par la vidéo
-            document.body.innerHTML = "";
-            document.body.appendChild(video);
-        }
-    </script>
-
-</body>
-</html>
+        function lancerVideo(videoFile
