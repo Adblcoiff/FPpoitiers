@@ -20,66 +20,53 @@
             color: #f3e9e2;
             overflow: hidden;
         }
-
+        
         .genre-choice {
-            position: relative;
-            width: 200px; /* Largeur du conteneur */
-            height: 200px; /* Hauteur du conteneur */
+            text-align: center;
+        }
+
+        .genre-choice h1 {
+            font-size: 3em;
+            margin: 0.2em 0;
+            color: #f3e9e2;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .genre-choice h1:hover {
+            color: #f7a7b5;
         }
 
         .click-area {
-            position: absolute;
-            width: 100%;
-            height: 100%;
             cursor: pointer;
-            background-size: cover;
-            background-position: center;
-            border: none;
-            outline: none;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .click-area.femme {
-            background-image: url('6.png'); /* Image pour le choix femme */
-            z-index: 2; /* Au-dessus de l'autre bouton */
-        }
-
-        .click-area.homme {
-            background-image: url('7.png'); /* Image pour le choix homme */
-            z-index: 1; /* Derrière l'autre bouton */
-        }
-
-        /* Effet visuel au survol */
-        .click-area:hover {
-            transform: scale(1.1); /* Zoom léger */
-            opacity: 0.8; /* Transparence pour l’effet */
         }
     </style>
 </head>
 <body>
 
-    <!-- Conteneur des boutons superposés -->
+    <!-- Contenu central pour le choix du genre -->
     <div class="genre-choice">
-        <button class="click-area femme" onclick="lancerTirage('femme')" aria-label="Choisir Femme"></button>
-        <button class="click-area homme" onclick="lancerTirage('homme')" aria-label="Choisir Homme"></button>
+        <h1 class="click-area" onclick="choisirGenre('femme')">FEMME</h1>
+        <h1 class="click-area" onclick="choisirGenre('homme')">HOMME</h1>
     </div>
 
     <script>
+        function choisirGenre(genre) {
+            lancerTirage(genre);
+        }
+
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
-            const lastTirageDateKey = `lastTirageDate_${genre}`;
-            const lastTirageResultKey = `lastTirageResult_${genre}`;
-
-            const lastTirageDate = localStorage.getItem(lastTirageDateKey);
-            const lastTirageResult = localStorage.getItem(lastTirageResultKey);
+            const lastTirageDate = localStorage.getItem("lastTirageDate");
+            const lastTirageResult = localStorage.getItem("lastTirageResult");
 
             let isGagnant;
 
-            // Si le tirage d'aujourd'hui pour ce genre n'a pas encore eu lieu, on en crée un
+            // Si le tirage d'aujourd'hui n'a pas encore eu lieu, on en crée un
             if (lastTirageDate !== today) {
                 isGagnant = Math.random() < 0.02; // 2 % de chance de gagner
-                localStorage.setItem(lastTirageDateKey, today);
-                localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
+                localStorage.setItem("lastTirageDate", today);
+                localStorage.setItem("lastTirageResult", isGagnant ? "gagner" : "perdu");
             } else {
                 // Sinon, on utilise le résultat enregistré pour aujourd'hui
                 isGagnant = lastTirageResult === "gagner";
@@ -90,4 +77,27 @@
             lancerVideo(videoFile);
         }
 
-        function lancerVideo(videoFile
+        function lancerVideo(videoFile) {
+            // Création de l'élément vidéo plein écran sans contrôle
+            const video = document.createElement("video");
+            video.src = videoFile;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = false;
+            video.playsInline = true;
+            video.style.width = "100%";
+            video.style.height = "100vh";
+            video.style.objectFit = "cover";
+            video.style.pointerEvents = "none"; // Empêche toute interaction avec la vidéo
+            video.setAttribute("playsinline", "");
+            video.setAttribute("autoplay", "true");
+            video.setAttribute("muted", "true");
+
+            // Remplacement du contenu de la page par la vidéo
+            document.body.innerHTML = "";
+            document.body.appendChild(video);
+        }
+    </script>
+
+</body>
+</html>
