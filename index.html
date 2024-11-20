@@ -20,7 +20,7 @@
             color: #f3e9e2;
             overflow: hidden;
         }
-        
+
         .genre-choice {
             text-align: center;
         }
@@ -52,60 +52,43 @@
 
     <script>
         function choisirGenre(genre) {
-            console.log(`Choix du genre: ${genre}`);  // Pour déboguer quel genre a été choisi
             lancerTirage(genre);
         }
 
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
-            console.log('Date actuelle:', today); // Pour vérifier si la date est correcte
-
-            // Clés pour localStorage spécifiques à chaque genre
+            
+            // Clés pour stocker les données spécifiques au genre
             const lastTirageDateKey = `lastTirageDate_${genre}`;
             const lastTirageResultKey = `lastTirageResult_${genre}`;
-            const gagnantAttribueKey = `gagnantAttribue_${genre}_${today}`;
+            const gagnantAttribueKey = `gagnantAttribue_${genre}`;
 
-            // Récupération des données stockées dans localStorage
+            // Récupérer les données du localStorage
             const lastTirageDate = localStorage.getItem(lastTirageDateKey);
-            const lastTirageResult = localStorage.getItem(lastTirageResultKey);
-            const gagnantAttribue = JSON.parse(localStorage.getItem(gagnantAttribueKey)) || false;
-
-            console.log('Dernière date de tirage:', lastTirageDate);
-            console.log('Résultat précédent:', lastTirageResult);
-            console.log('Gagnant attribué aujourd\'hui pour ce genre:', gagnantAttribue);
+            const gagnantAttribue = localStorage.getItem(gagnantAttribueKey);
 
             let isGagnant;
 
-            // Si aucun tirage n'a eu lieu aujourd'hui pour ce genre, on effectue un tirage
+            // Si le tirage d'aujourd'hui n'a pas encore eu lieu pour ce genre
             if (lastTirageDate !== today) {
-                console.log('Aucun tirage effectué aujourd\'hui. Nouveau tirage...');
-
-                // Si ce genre n'a pas encore eu de gagnant attribué aujourd'hui
-                if (!gagnantAttribue) {
-                    // Effectue un tirage aléatoire avec 50 % de chance de gagner
-                    isGagnant = Math.random() < 0.50; // 50 % de chance de gagner
-                    console.log('Résultat du tirage:', isGagnant ? 'Gagnant' : 'Perdant');
-
-                    // Si le tirage est gagnant, on l'enregistre
-                    if (isGagnant) {
-                        localStorage.setItem(gagnantAttribueKey, JSON.stringify(true)); // Marque ce genre comme gagnant pour la journée
-                    }
+                // Vérifier si un gagnant a déjà été attribué pour ce genre
+                if (gagnantAttribue !== "true") {
+                    isGagnant = true; // Garantir un gagnant pour ce genre
+                    localStorage.setItem(gagnantAttribueKey, "true"); // Marquer ce genre comme ayant un gagnant
                 } else {
-                    console.log(`Un gagnant a déjà été attribué pour ${genre} aujourd'hui.`);
-                    // Si un gagnant a déjà été attribué pour ce genre, on ne refait pas le tirage
-                    isGagnant = false;
+                    isGagnant = false; // Si déjà attribué, ce joueur perd
                 }
 
-                // Sauvegarde la date et le résultat du tirage
+                // Enregistrer la date et le résultat du tirage
                 localStorage.setItem(lastTirageDateKey, today);
                 localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
             } else {
-                // Si le tirage a déjà eu lieu aujourd'hui, on utilise le résultat enregistré
-                console.log('Tirage déjà effectué aujourd\'hui.');
+                // Sinon, utiliser le résultat déjà enregistré pour ce genre
+                const lastTirageResult = localStorage.getItem(lastTirageResultKey);
                 isGagnant = lastTirageResult === "gagner";
             }
 
-            // Lancement de la vidéo en fonction du résultat du tirage
+            // Lancer la vidéo en fonction du résultat
             const videoFile = isGagnant ? "gagner_1.mov" : "perdu.mp4";
             lancerVideo(videoFile);
         }
@@ -130,20 +113,6 @@
             document.body.innerHTML = "";
             document.body.appendChild(video);
         }
-
-        // Fonction pour réinitialiser les résultats de tirage pour les tests
-        function resetTirages() {
-            localStorage.removeItem('lastTirageDate_femme');
-            localStorage.removeItem('lastTirageResult_femme');
-            localStorage.removeItem('gagnantAttribue_femme');
-            localStorage.removeItem('lastTirageDate_homme');
-            localStorage.removeItem('lastTirageResult_homme');
-            localStorage.removeItem('gagnantAttribue_homme');
-            console.log('Les tirages ont été réinitialisés.');
-        }
-
-        // Vous pouvez appeler resetTirages() pour réinitialiser les données du localStorage.
-        // Exemple : resetTirages();
     </script>
 
 </body>
