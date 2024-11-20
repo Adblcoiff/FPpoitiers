@@ -56,7 +56,6 @@
     }
 
     function lancerTirage(genre) {
-        // Vérification de la compatibilité avec localStorage
         if (!window.localStorage) {
             alert('LocalStorage n’est pas pris en charge sur cet appareil.');
             return;
@@ -64,20 +63,20 @@
 
         const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
 
-        // Clés pour stocker les données spécifiques au genre
+        // Clés pour stocker les données spécifiques
         const lastTirageDateKey = `lastTirageDate_${genre}`;
         const lastTirageResultKey = `lastTirageResult_${genre}`;
         const gagnantAttribueKeyFemme = "gagnantAttribue_femme";
         const gagnantAttribueKeyHomme = "gagnantAttribue_homme";
 
-        // Vérifier si un gagnant a déjà été attribué aujourd'hui
+        // Charger les états actuels
+        const lastTirageDate = localStorage.getItem(lastTirageDateKey);
         const gagnantFemme = localStorage.getItem(gagnantAttribueKeyFemme) === "true";
         const gagnantHomme = localStorage.getItem(gagnantAttribueKeyHomme) === "true";
 
-        const lastTirageDate = localStorage.getItem(lastTirageDateKey);
         let isGagnant;
 
-        // Si le tirage d'aujourd'hui n'a pas encore eu lieu pour ce genre
+        // Si le tirage d'aujourd'hui n'a pas encore été fait
         if (lastTirageDate !== today) {
             if (genre === "femme" && !gagnantFemme) {
                 isGagnant = true; // Attribuer un gagnant au genre femme
@@ -86,33 +85,33 @@
                 isGagnant = true; // Attribuer un gagnant au genre homme
                 localStorage.setItem(gagnantAttribueKeyHomme, "true");
             } else {
-                isGagnant = false; // Si un gagnant a déjà été attribué, le résultat est perdant
+                isGagnant = false; // Aucun gagnant si les deux genres ont déjà un gagnant
             }
 
-            // Enregistrer la date et le résultat du tirage
+            // Enregistrer la date et le résultat
             localStorage.setItem(lastTirageDateKey, today);
             localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
         } else {
-            // Utiliser le résultat enregistré pour ce genre
+            // Utiliser le résultat du tirage enregistré pour aujourd'hui
             const lastTirageResult = localStorage.getItem(lastTirageResultKey);
             isGagnant = lastTirageResult === "gagner";
         }
 
-        // Debugging : Vérification des valeurs
-        console.log("Date du tirage (Femme) : ", localStorage.getItem("lastTirageDate_femme"));
-        console.log("Résultat (Femme) : ", localStorage.getItem("lastTirageResult_femme"));
-        console.log("Date du tirage (Homme) : ", localStorage.getItem("lastTirageDate_homme"));
-        console.log("Résultat (Homme) : ", localStorage.getItem("lastTirageResult_homme"));
-        console.log("Gagnant attribué (Femme) : ", localStorage.getItem("gagnantAttribue_femme"));
-        console.log("Gagnant attribué (Homme) : ", localStorage.getItem("gagnantAttribue_homme"));
+        // Debugging : Vérifier les états actuels
+        console.log("Date du tirage (Femme) :", localStorage.getItem("lastTirageDate_femme"));
+        console.log("Résultat (Femme) :", localStorage.getItem("lastTirageResult_femme"));
+        console.log("Date du tirage (Homme) :", localStorage.getItem("lastTirageDate_homme"));
+        console.log("Résultat (Homme) :", localStorage.getItem("lastTirageResult_homme"));
+        console.log("Gagnant attribué (Femme) :", localStorage.getItem("gagnantAttribue_femme"));
+        console.log("Gagnant attribué (Homme) :", localStorage.getItem("gagnantAttribue_homme"));
 
-        // Lancer la vidéo en fonction du résultat
-        const videoFile = isGagnant ? "gagner_1.mov" : "perdu.mp4";
+        // Lancer la vidéo selon le résultat
+        const videoFile = isGagnant ? "gagner.mp4" : "perdu.mp4";
         lancerVideo(videoFile);
     }
 
     function lancerVideo(videoFile) {
-        // Création de l'élément vidéo plein écran sans contrôle
+        // Création de l'élément vidéo plein écran
         const video = document.createElement("video");
         video.src = videoFile;
         video.autoplay = true;
@@ -122,12 +121,12 @@
         video.style.width = "100%";
         video.style.height = "100vh";
         video.style.objectFit = "cover";
-        video.style.pointerEvents = "none"; // Empêche toute interaction avec la vidéo
+        video.style.pointerEvents = "none"; // Empêche l'interaction
         video.setAttribute("playsinline", "");
         video.setAttribute("autoplay", "true");
         video.setAttribute("muted", "true");
 
-        // Remplacement du contenu de la page par la vidéo
+        // Remplacer le contenu de la page par la vidéo
         document.body.innerHTML = "";
         document.body.appendChild(video);
     }
