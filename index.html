@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choix du Genre</title>
     <style>
-        /* Style de la page principale */
         body, html {
             margin: 0;
             padding: 0;
@@ -82,26 +81,45 @@
 
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
-            
-            // Référence Firebase spécifique au genre pour aujourd'hui
             const gagnantRef = database.ref(`gagnants/${today}/${genre}`);
+            const chanceRef = database.ref(`chances/${today}/${genre}`);
 
             // Vérifier si un gagnant a déjà été enregistré pour ce genre aujourd'hui
             gagnantRef.get().then(snapshot => {
                 if (snapshot.exists()) {
-                    // Si un gagnant existe déjà pour ce genre
+                    // Si un gagnant existe déjà pour ce genre, afficher "Perdu"
                     lancerVideo("perdu.mp4");
                 } else {
-                    // Si aucun gagnant n'a encore été enregistré pour ce genre, enregistrer ce tirage
-                    gagnantRef.set({
-                        genre: genre,
-                        date: today
-                    }).then(() => {
-                        // Lancer la vidéo du gagnant
-                        alert(`Félicitations ! Vous avez gagné pour ${genre}`);
-                        lancerVideo(genre === "femme" ? "gagner_femme.mov" : "gagner_homme.mov");
+                    // Vérifier la probabilité actuelle pour ce genre
+                    chanceRef.get().then(chanceSnapshot => {
+                        let chance = 4; // Probabilité de base de 4%
+                        if (chanceSnapshot.exists()) {
+                            chance = chanceSnapshot.val(); // Récupérer la probabilité actuelle
+                        }
+
+                        const random = Math.random() * 100; // Nombre entre 0 et 100
+                        if (random <= chance) {
+                            // Gagnant : enregistrer comme gagnant pour ce genre
+                            gagnantRef.set({
+                                genre: genre,
+                                date: today
+                            }).then(() => {
+                                alert(`Félicitations ! Vous êtes le gagnant pour ${genre} aujourd'hui.`);
+                                lancerVideo(genre === "femme" ? "gagner_femme.mov" : "gagner_homme.mov");
+
+                                // Réinitialiser la probabilité pour ce genre à 4 %
+                                chanceRef.set(4);
+                            }).catch(error => {
+                                console.error("Erreur d'écriture dans la base de données Firebase :", error);
+                                alert("Une erreur est survenue. Veuillez réessayer.");
+                            });
+                        } else {
+                            // Perdant : augmenter la probabilité de 4 %
+                            lancerVideo("perdu.mp4");
+                            chanceRef.set(chance + 4); // Augmenter la probabilité
+                        }
                     }).catch(error => {
-                        console.error("Erreur d'écriture dans la base de données Firebase :", error);
+                        console.error("Erreur lors de la lecture de la probabilité Firebase :", error);
                         alert("Une erreur est survenue. Veuillez réessayer.");
                     });
                 }
