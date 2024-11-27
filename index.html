@@ -83,23 +83,23 @@
         function lancerTirage(genre) {
             const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
             
-            // Références Firebase pour suivre les gagnants
-            const gagnantRef = database.ref('gagnants/' + today);
+            // Référence Firebase spécifique au genre pour aujourd'hui
+            const gagnantRef = database.ref(`gagnants/${today}/${genre}`);
 
-            // Vérifier si un gagnant a déjà été enregistré pour aujourd'hui
+            // Vérifier si un gagnant a déjà été enregistré pour ce genre aujourd'hui
             gagnantRef.get().then(snapshot => {
                 if (snapshot.exists()) {
-                    //alert(`Le tirage pour aujourd'hui a déjà eu lieu pour ${genre}.`);
+                    // Si un gagnant existe déjà pour ce genre
                     lancerVideo("perdu.mp4");
                 } else {
-                    // Si aucun gagnant n'a encore été enregistré, enregistrer ce tirage comme gagnant
+                    // Si aucun gagnant n'a encore été enregistré pour ce genre, enregistrer ce tirage
                     gagnantRef.set({
                         genre: genre,
                         date: today
                     }).then(() => {
                         // Lancer la vidéo du gagnant
                         alert(`Félicitations ! Vous avez gagné pour ${genre}`);
-                        lancerVideo("gagner_1.mov");
+                        lancerVideo(genre === "femme" ? "gagner_femme.mov" : "gagner_homme.mov");
                     }).catch(error => {
                         console.error("Erreur d'écriture dans la base de données Firebase :", error);
                         alert("Une erreur est survenue. Veuillez réessayer.");
