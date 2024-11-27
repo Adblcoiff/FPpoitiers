@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choix du Genre</title>
     <style>
-        /* Style de la page principale */
         body, html {
             margin: 0;
             padding: 0;
@@ -49,10 +48,10 @@
     </div>
 
     <script>
-        const SHEET_ID = "1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI"; //ID Sheet
-        const API_KEY = "AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY";   //API Google Cloud
-        const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/$1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI/values/Tirages?key=$AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY`;
-        const APPEND_URL = `https://sheets.googleapis.com/v4/spreadsheets/$1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI/values/Tirages:append?valueInputOption=RAW&key=$AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY`;
+        const SHEET_ID = "1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI"; // ID de votre Google Sheet
+        const API_KEY = "AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY";       // Clé API Google Cloud
+        const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages?key=${API_KEY}`;
+        const APPEND_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages:append?valueInputOption=RAW&key=${API_KEY}`;
 
         async function choisirGenre(genre) {
             await lancerTirage(genre);
@@ -62,11 +61,11 @@
             const today = new Date().toISOString().slice(0, 10);
 
             try {
-                // Vérifier les tirages existants pour aujourd'hui
+                // Récupérer les données actuelles de la feuille
                 const response = await fetch(SHEET_URL);
                 const data = await response.json();
 
-                // Si des tirages existent déjà
+                // Vérification des lignes existantes
                 const rows = data.values || [];
                 const tirageDuJour = rows.find(row => row[0] === today);
 
@@ -76,15 +75,20 @@
                     const isGagnant = gagnantGenre === genre;
                     lancerVideo(isGagnant ? "gagner_1.mov" : "perdu.mp4");
                 } else {
-                    // Pas encore de gagnant : on attribue ce tirage comme gagnant
-                    await fetch(APPEND_URL, {
+                    // Pas encore de gagnant : enregistrer un nouveau tirage
+                    const ajoutResponse = await fetch(APPEND_URL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             values: [[today, genre]]
                         })
                     });
-                    lancerVideo("gagner_1.mov");
+
+                    if (ajoutResponse.ok) {
+                        lancerVideo("gagner_1.mov");
+                    } else {
+                        throw new Error("Erreur lors de l'ajout du tirage.");
+                    }
                 }
             } catch (error) {
                 console.error("Erreur lors de la communication avec Google Sheets :", error);
@@ -93,7 +97,6 @@
         }
 
         function lancerVideo(videoFile) {
-            // Création de l'élément vidéo plein écran
             const video = document.createElement("video");
             video.src = videoFile;
             video.autoplay = true;
@@ -103,16 +106,14 @@
             video.style.width = "100%";
             video.style.height = "100vh";
             video.style.objectFit = "cover";
-            video.style.pointerEvents = "none"; // Empêche l'interaction
+            video.style.pointerEvents = "none";
             video.setAttribute("playsinline", "");
             video.setAttribute("autoplay", "true");
             video.setAttribute("muted", "true");
 
-            // Remplacer le contenu de la page par la vidéo
             document.body.innerHTML = "";
             document.body.appendChild(video);
         }
     </script>
 </body>
 </html>
-
