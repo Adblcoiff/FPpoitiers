@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choix du Genre</title>
     <style>
+        /* Style de la page principale */
         body, html {
             margin: 0;
             padding: 0;
@@ -37,19 +38,6 @@
             color: #f7a7b5;
         }
 
-        .result-message {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 2em;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-        }
-
         .click-area {
             cursor: pointer;
         }
@@ -63,102 +51,89 @@
         <h1 class="click-area" onclick="choisirGenre('homme')">HOMME</h1>
     </div>
 
-    <div id="resultMessage" class="result-message"></div>
+    <!-- Intégration de Firebase via CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js"></script>
 
-   <script>
-    function choisirGenre(genre) {
-        lancerTirage(genre);
-    }
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNrpbJl2AJCL0f3VmOU91G2lLjTEZ0VkM",
+            authDomain: "project-8302741511644423812.firebaseapp.com",
+            databaseURL: "https://project-8302741511644423812-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "project-8302741511644423812",
+            storageBucket: "project-8302741511644423812.appspot.com",
+            messagingSenderId: "999381983248",
+            appId: "1:999381983248:web:37c70db29d0e156cdf6a95",
+            measurementId: "G-FPZ785TYD1"
+        };
 
-    function lancerTirage(genre) {
-        if (!window.localStorage) {
-            alert('LocalStorage n’est pas pris en charge sur cet appareil.');
-            return;
+        // Initialisation de Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+
+        // Référence à la base de données
+        const database = firebase.database(app);
+
+        // Fonction pour choisir un genre et effectuer le tirage
+        function choisirGenre(genre) {
+            lancerTirage(genre);
         }
 
-        const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
+        function lancerTirage(genre) {
+            const today = new Date().toISOString().slice(0, 10); // Date actuelle (format YYYY-MM-DD)
+            
+            // Références Firebase pour suivre les gagnants
+            const gagnantRef = database.ref('gagnants/' + today);
 
-        // Clés spécifiques au tirage
-        const gagnantAttribueKeyFemme = "gagnantAttribue_femme";
-        const gagnantAttribueKeyHomme = "gagnantAttribue_homme";
-        const lastTirageDateKey = `lastTirageDate_${genre}`;
-        const lastTirageResultKey = `lastTirageResult_${genre}`;
-
-        // Charger les états
-        const gagnantFemmeAttribueDate = localStorage.getItem(gagnantAttribueKeyFemme);
-        const gagnantHommeAttribueDate = localStorage.getItem(gagnantAttribueKeyHomme);
-        const lastTirageDate = localStorage.getItem(lastTirageDateKey);
-
-        let isGagnant;
-
-        // Vérifier si un gagnant existe déjà pour ce genre aujourd'hui
-        if ((genre === "femme" && gagnantFemmeAttribueDate === today) || 
-            (genre === "homme" && gagnantHommeAttribueDate === today)) {
-            // Si un gagnant existe pour ce genre, ce tirage est perdant
-            isGagnant = false;
-        } else if (lastTirageDate !== today) {
-            // Si ce genre n'a pas encore été tiré aujourd'hui
-            isGagnant = true; // Ce tirage est gagnant
-            // Enregistrer le gagnant pour ce genre
-            if (genre === "femme") {
-                localStorage.setItem(gagnantAttribueKeyFemme, today);
-            } else if (genre === "homme") {
-                localStorage.setItem(gagnantAttribueKeyHomme, today);
-            }
-        } else {
-            // Sinon, utiliser le dernier résultat enregistré
-            const lastTirageResult = localStorage.getItem(lastTirageResultKey);
-            isGagnant = lastTirageResult === "gagner";
+            // Vérifier si un gagnant a déjà été enregistré pour aujourd'hui
+            gagnantRef.get().then(snapshot => {
+                if (snapshot.exists()) {
+                    // Si un gagnant existe, afficher un message de perte
+                    alert(`Le tirage pour aujourd'hui a déjà eu lieu pour ${genre}.`);
+                    lancerVideo("perdu.mp4");
+                } else {
+                    // Si aucun gagnant n'a encore été enregistré, enregistrer ce tirage comme gagnant
+                    gagnantRef.set({
+                        genre: genre,
+                        date: today
+                    }).then(() => {
+                        // Lancer la vidéo du gagnant
+                        alert(`Félicitations ! Vous avez gagné pour ${genre}`);
+                        lancerVideo("gagner_1.mov");
+                    }).catch(error => {
+                        console.error("Erreur d'écriture dans la base de données Firebase :", error);
+                        alert("Une erreur est survenue. Veuillez réessayer.");
+                    });
+                }
+            }).catch(error => {
+                console.error("Erreur lors de la lecture de la base de données Firebase :", error);
+                alert("Une erreur est survenue. Veuillez réessayer.");
+            });
         }
 
-        // Enregistrer le résultat du tirage dans `localStorage`
-        localStorage.setItem(lastTirageDateKey, today);
-        localStorage.setItem(lastTirageResultKey, isGagnant ? "gagner" : "perdu");
+        // Fonction pour lancer une vidéo
+        function lancerVideo(videoFile) {
+            // Création de l'élément vidéo plein écran
+            const video = document.createElement("video");
+            video.src = videoFile;
+            video.autoplay = true;
+            video.muted = true;
+            video.loop = false;
+            video.playsInline = true;
+            video.style.width = "100%";
+            video.style.height = "100vh";
+            video.style.objectFit = "cover";
+            video.style.pointerEvents = "none"; // Empêche l'interaction
+            video.setAttribute("playsinline", "");
+            video.setAttribute("autoplay", "true");
+            video.setAttribute("muted", "true");
 
-        // Debugging : Afficher les valeurs dans la console
-        console.log("Date actuelle :", today);
-        console.log("Gagnant attribué (Femme) :", localStorage.getItem(gagnantAttribueKeyFemme));
-        console.log("Gagnant attribué (Homme) :", localStorage.getItem(gagnantAttribueKeyHomme));
-        console.log("Tirage pour genre", genre, ":", isGagnant ? "Gagnant" : "Perdant");
-
-        // Afficher le message de résultat
-        afficherMessageResultat(isGagnant ? "Félicitations ! Vous avez gagné !" : "Désolé, vous avez perdu.");
-
-        // Lancer la vidéo selon le résultat
-        const videoFile = isGagnant ? "gagner_1.mov" : "perdu.mp4";
-        lancerVideo(videoFile);
-    }
-
-    function afficherMessageResultat(message) {
-        const resultMessageElement = document.getElementById('resultMessage');
-        resultMessageElement.textContent = message;
-        resultMessageElement.style.display = 'block';
-        setTimeout(() => {
-            resultMessageElement.style.display = 'none';
-        }, 3000);  // Afficher le message pendant 3 secondes
-    }
-
-    function lancerVideo(videoFile) {
-        // Création de l'élément vidéo plein écran
-        const video = document.createElement("video");
-        video.src = videoFile;
-        video.autoplay = true;
-        video.muted = true;
-        video.loop = false;
-        video.playsInline = true;
-        video.style.width = "100%";
-        video.style.height = "100vh";
-        video.style.objectFit = "cover";
-        video.style.pointerEvents = "none"; // Empêche l'interaction
-        video.setAttribute("playsinline", "");
-        video.setAttribute("autoplay", "true");
-        video.setAttribute("muted", "true");
-
-        // Remplacer le contenu de la page par la vidéo
-        document.body.innerHTML = "";
-        document.body.appendChild(video);
-    }
-</script>
+            // Remplacer le contenu de la page par la vidéo
+            document.body.innerHTML = "";
+            document.body.appendChild(video);
+        }
+    </script>
 
 </body>
 </html>
