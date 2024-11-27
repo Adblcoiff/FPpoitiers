@@ -50,8 +50,8 @@
     </div>
 
     <script>
-        const SHEET_ID = "1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI"; // Remplacez par l'ID de votre feuille Google
-        const API_KEY = "AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY";   // Remplacez par votre clé API Google Cloud
+        const SHEET_ID = "1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI"; // ID de votre feuille Google
+        const API_KEY = "AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY";   // Votre clé API Google Cloud
         const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages?key=${API_KEY}`;
         const APPEND_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages:append?valueInputOption=RAW&key=${API_KEY}`;
 
@@ -60,24 +60,24 @@
         }
 
         async function lancerTirage(genre) {
-            const today = new Date().toISOString().slice(0, 10);
+            const today = new Date().toISOString().slice(0, 10); // Date du jour au format ISO
 
             try {
-                // Vérifier les tirages existants pour aujourd'hui
+                // Vérification des tirages existants pour aujourd'hui
                 const response = await fetch(SHEET_URL);
                 const data = await response.json();
 
-                // Si des tirages existent déjà
                 const rows = data.values || [];
-                const tirageDuJour = rows.find(row => row[0] === today);
+                const tirageDuJour = rows.filter(row => row[0] === today); // Filtrer par date
 
-                if (tirageDuJour) {
-                    // Un gagnant a déjà été attribué aujourd'hui
-                    const gagnantGenre = tirageDuJour[1];
-                    const isGagnant = gagnantGenre === genre;
-                    lancerVideo(isGagnant ? "gagner_1.mov" : "perdu.mp4");
+                // Vérifier si le genre a déjà un gagnant aujourd'hui
+                const tirageGenre = tirageDuJour.find(row => row[1] === genre);
+
+                if (tirageGenre) {
+                    // Si un gagnant a déjà été enregistré pour ce genre
+                    lancerVideo("perdu.mp4");  // Afficher un message de perdant
                 } else {
-                    // Pas encore de gagnant : on attribue ce tirage comme gagnant
+                    // Aucun tirage pour ce genre aujourd'hui, on l'ajoute
                     await fetch(APPEND_URL, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -85,7 +85,7 @@
                             values: [[today, genre]]
                         })
                     });
-                    lancerVideo("gagner_1.mov");
+                    lancerVideo("gagner_1.mov");  // Afficher la vidéo de gagnant
                 }
             } catch (error) {
                 console.error("Erreur lors de la communication avec Google Sheets :", error);
@@ -116,4 +116,3 @@
     </script>
 </body>
 </html>
-
