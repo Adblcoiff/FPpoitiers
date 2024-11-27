@@ -104,8 +104,8 @@
                                 genre: genre,
                                 date: today
                             }).then(() => {
-                                alert(`Félicitations ! Vous êtes le gagnant pour ${genre} aujourd'hui.`);
-                                lancerVideo(genre === "femme" ? "gagner_femme.mov" : "gagner_homme.mov");
+                               // alert(`Félicitations ! Vous êtes le gagnant pour ${genre} aujourd'hui.`);
+                                lancerVideo(genre === "femme" ? "gagner_1.mov" : "gagner_1.mov");
 
                                 // Réinitialiser la probabilité pour ce genre à 4 %
                                 chanceRef.set(4);
