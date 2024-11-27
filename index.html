@@ -89,8 +89,7 @@
             // Vérifier si un gagnant a déjà été enregistré pour aujourd'hui
             gagnantRef.get().then(snapshot => {
                 if (snapshot.exists()) {
-                    // Si un gagnant existe, afficher un message de perte
-                    alert(`Le tirage pour aujourd'hui a déjà eu lieu pour ${genre}.`);
+                    //alert(`Le tirage pour aujourd'hui a déjà eu lieu pour ${genre}.`);
                     lancerVideo("perdu.mp4");
                 } else {
                     // Si aucun gagnant n'a encore été enregistré, enregistrer ce tirage comme gagnant
