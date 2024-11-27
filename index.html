@@ -51,7 +51,7 @@
         const SHEET_ID = "1wV1J-YQw8WPiMNCFIPVfHWSmasiQVy7fUUe_KaqwYOI"; // ID de votre Google Sheet
         const API_KEY = "AIzaSyA9xvkIzsZtb-RlsQWGPosdf6rtbAF8WRY";       // Clé API Google Cloud
         const SHEET_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages?key=${API_KEY}`;
-        const APPEND_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages:append?valueInputOption=RAW&key=${API_KEY}`;
+       // const APPEND_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tirages:append?valueInputOption=RAW&key=${API_KEY}`;
 
         async function choisirGenre(genre) {
             await lancerTirage(genre);
